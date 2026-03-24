@@ -225,6 +225,8 @@ function parseDfOutput(output) {
     // Skip virtual/temp filesystems
     if (/^(tmpfs|devtmpfs|udev|overlay|shm|none)/.test(mount)) continue;
     if (mount === '-') continue;
+    // Skip non-physical mount points
+    if (/^\/(run|dev\/shm|sys|proc)/.test(mount)) continue;
 
     const size = parseInt(parts[1]) || 0;
     const used = parseInt(parts[2]) || 0;

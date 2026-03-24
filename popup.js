@@ -337,8 +337,19 @@ themeToggle.addEventListener('click', () => {
 });
 
 // ─── Connect native button ───
-connectBtn.addEventListener('click', () => {
-  connectNative();
+connectBtn.addEventListener('click', async () => {
+  // Request nativeMessaging permission if not already granted
+  try {
+    const granted = await chrome.permissions.request({ permissions: ['nativeMessaging'] });
+    if (granted) {
+      connectNative();
+    } else {
+      nativeStatus.textContent = 'Permission denied';
+    }
+  } catch (e) {
+    // Permission might already be granted
+    connectNative();
+  }
 });
 
 // ─── Update badge ───
@@ -371,10 +382,15 @@ async function refresh() {
 // ─── Init ───
 initTheme();
 
-// Try native connection silently on load
-try {
-  connectNative();
-} catch (_) {}
+// Try native connection silently on load (only if permission already granted)
+chrome.permissions.contains({ permissions: ['nativeMessaging'] }, (granted) => {
+  if (granted) {
+    try { connectNative(); } catch (_) {}
+  } else {
+    // Show the connect button so user can opt-in
+    connectBtn.classList.remove('hidden');
+  }
+});
 
 // First refresh, then interval
 refresh();
