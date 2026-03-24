@@ -6,7 +6,8 @@
   "permissions": [
     "system.cpu",
     "system.memory",
-    "system.storage"
+    "system.storage",
+    "alarms"
   ],
   "optional_permissions": [
     "nativeMessaging"
