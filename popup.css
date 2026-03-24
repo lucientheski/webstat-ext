@@ -176,7 +176,7 @@ header h1 {
 /* === Core Grid === */
 .cores-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 4px;
 }
 

@@ -130,6 +130,9 @@ async function updateMemory() {
 
 // ─── Storage ───
 async function updateStorage() {
+  // If native host is connected, disk data comes from handleNativeData
+  if (nativeConnected) return;
+
   try {
     const units = await chrome.system.storage.getInfo();
     storageList.innerHTML = '';
@@ -159,18 +162,13 @@ async function updateStorage() {
       label.appendChild(cap);
       item.appendChild(label);
 
-      // Storage API doesn't give used space, so we show capacity only
-      // (used/free requires native host)
       if (unit.capacity > 0) {
-        const barContainer = document.createElement('div');
-        barContainer.className = 'bar-container';
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        // Without used data, show a static indicator
-        bar.style.width = '100%';
-        bar.style.opacity = '0.3';
-        barContainer.appendChild(bar);
-        item.appendChild(barContainer);
+        const detail = document.createElement('div');
+        detail.className = 'detail';
+        detail.textContent = formatBytes(unit.capacity) + ' total — install native host for usage details';
+        detail.style.fontSize = '10px';
+        detail.style.marginTop = '2px';
+        item.appendChild(detail);
       }
 
       storageList.appendChild(item);
@@ -236,6 +234,40 @@ function handleNativeData(data) {
       tr.appendChild(tdCpu);
       tr.appendChild(tdMem);
       processBody.appendChild(tr);
+    }
+  }
+
+  if (data.disk && data.disk.length) {
+    storageList.innerHTML = '';
+    for (const d of data.disk) {
+      const item = document.createElement('div');
+      item.className = 'storage-item';
+
+      const label = document.createElement('div');
+      label.className = 'storage-label';
+
+      const name = document.createElement('span');
+      name.className = 'storage-name';
+      name.textContent = d.mount;
+      name.title = d.mount;
+
+      const cap = document.createElement('span');
+      cap.className = 'storage-cap';
+      cap.textContent = formatBytes(d.used) + ' / ' + formatBytes(d.size) + ' (' + d.pct + '%)';
+
+      label.appendChild(name);
+      label.appendChild(cap);
+      item.appendChild(label);
+
+      const barContainer = document.createElement('div');
+      barContainer.className = 'bar-container';
+      const bar = document.createElement('div');
+      bar.className = 'bar ' + barClass(d.pct);
+      bar.style.width = d.pct + '%';
+      barContainer.appendChild(bar);
+      item.appendChild(barContainer);
+
+      storageList.appendChild(item);
     }
   }
 
