@@ -95,13 +95,12 @@ function getProcesses() {
         { encoding: 'utf8', timeout: 3000 }
       );
     } else if (platform === 'win32') {
-      // Windows: use wmic
       try {
         output = execSync(
-          'wmic process get Name,PercentProcessorTime,WorkingSetSize /format:csv',
+          'powershell -NoProfile -Command "Get-Process | Sort-Object CPU -Descending | Select-Object -First 15 | ForEach-Object { $_.Name + \\"|\\" + [math]::Round($_.CPU,1) + \\"|\\" + [math]::Round($_.WorkingSet64/1MB,1) }"',
           { encoding: 'utf8', timeout: 5000 }
         );
-        return parseWmicProcesses(output);
+        return parseWinProcesses(output);
       } catch (_) {
         return [];
       }
@@ -143,22 +142,20 @@ function parsePsOutput(output) {
   return processes;
 }
 
-function parseWmicProcesses(output) {
-  // Basic wmic CSV parser
+function parseWinProcesses(output) {
   const lines = output.trim().split('\n').filter(l => l.trim());
-  if (lines.length < 2) return [];
-
   const processes = [];
-  for (let i = 1; i < lines.length && processes.length < 10; i++) {
-    const parts = lines[i].split(',');
+  for (const line of lines) {
+    const parts = line.trim().split('|');
     if (parts.length < 3) continue;
     processes.push({
-      name: (parts[1] || '').trim(),
-      cpu: parseFloat(parts[2]) || 0,
-      mem: 0,
+      name: parts[0].trim(),
+      cpu: parseFloat(parts[1]) || 0,
+      mem: parseFloat(parts[2]) || 0,
     });
+    if (processes.length >= 10) break;
   }
-  return processes.sort((a, b) => b.cpu - a.cpu);
+  return processes;
 }
 
 function getNetworkData() {
@@ -205,11 +202,34 @@ function getDiskUsage() {
         { encoding: 'utf8', timeout: 3000 }
       );
       return parseDfOutput(output);
+    } else if (platform === 'win32') {
+      const output = execSync(
+        'powershell -NoProfile -Command "Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null } | ForEach-Object { $_.Name + \\":|\\"+$_.Used+\\"|\\" +($_.Used+$_.Free)+\\"|\\"+$_.Free }"',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      return parseWinDisk(output);
     }
     return [];
   } catch (_) {
     return [];
   }
+}
+
+function parseWinDisk(output) {
+  const lines = output.trim().split('\n').filter(l => l.trim());
+  const disks = [];
+  for (const line of lines) {
+    const parts = line.trim().split('|');
+    if (parts.length < 4) continue;
+    const mount = parts[0].trim();
+    const used = parseInt(parts[1]) || 0;
+    const size = parseInt(parts[2]) || 0;
+    const avail = parseInt(parts[3]) || 0;
+    if (size === 0) continue;
+    const pct = Math.round((used / size) * 100);
+    disks.push({ mount, size, used, avail, pct });
+  }
+  return disks;
 }
 
 function parseDfOutput(output) {

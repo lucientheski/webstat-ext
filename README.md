@@ -30,6 +30,7 @@ Install the lightweight native host to unlock:
 ### Native Host (optional)
 Requires [Node.js](https://nodejs.org) (v16+).
 
+**Linux / macOS:**
 ```bash
 cd native-host
 
@@ -38,17 +39,28 @@ cd native-host
 
 # Or install with your extension ID:
 ./install.sh --extension-id=your-extension-id-here
+
+# Uninstall:
+./install.sh --uninstall
+```
+
+**Windows (PowerShell):**
+```powershell
+cd native-host
+
+# Install without extension ID (update later):
+.\install.ps1
+
+# Or install with your extension ID:
+.\install.ps1 -ExtensionId your-extension-id-here
+
+# Uninstall:
+.\install.ps1 -Uninstall
 ```
 
 To find your extension ID: go to `chrome://extensions`, find WebStat, copy the ID.
 
-After installing, restart Chrome. The extension will automatically detect the native host and show enhanced monitoring data.
-
-To uninstall the native host:
-```bash
-cd native-host
-./install.sh --uninstall
-```
+After installing, restart Chrome/Edge. The extension will automatically detect the native host and show enhanced monitoring data.
 
 ## How It Works
 
@@ -67,7 +79,7 @@ cd native-host
 ## Compatibility
 
 - **Chrome** 91+ / **Chromium** 91+
-- **Native host:** Linux, macOS (Windows partial — no install script yet)
+- **Native host:** Linux, macOS, Windows (PowerShell installer + Edge support)
 - **Firefox:** Not yet supported (different extension API)
 
 ## License
