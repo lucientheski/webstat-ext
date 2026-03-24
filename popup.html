@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebStat</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>⚡ WebStat</h1>
+      <div class="controls">
+        <button id="theme-toggle" title="Toggle theme">🌙</button>
+        <span id="status-dot" class="dot dot-ok" title="Updating"></span>
+      </div>
+    </header>
+
+    <section id="cpu-section" class="section">
+      <div class="section-header">
+        <h2>CPU</h2>
+        <span id="cpu-overall" class="badge">—%</span>
+      </div>
+      <div id="cpu-model" class="subtitle">—</div>
+      <div id="cpu-cores" class="cores-grid"></div>
+    </section>
+
+    <section id="memory-section" class="section">
+      <div class="section-header">
+        <h2>Memory</h2>
+        <span id="mem-percent" class="badge">—%</span>
+      </div>
+      <div class="bar-container">
+        <div id="mem-bar" class="bar" style="width: 0%"></div>
+      </div>
+      <div id="mem-detail" class="detail">—</div>
+    </section>
+
+    <section id="storage-section" class="section">
+      <div class="section-header">
+        <h2>Storage</h2>
+      </div>
+      <div id="storage-list"></div>
+    </section>
+
+    <section id="enhanced-section" class="section hidden">
+      <div class="section-header">
+        <h2>Enhanced</h2>
+        <span class="badge badge-accent">Native</span>
+      </div>
+
+      <div id="uptime-row" class="detail">—</div>
+
+      <h3>Processes</h3>
+      <table id="process-table">
+        <thead>
+          <tr>
+            <th class="col-name">Name</th>
+            <th class="col-num">CPU%</th>
+            <th class="col-num">Mem%</th>
+          </tr>
+        </thead>
+        <tbody id="process-body"></tbody>
+      </table>
+
+      <h3>Network</h3>
+      <div id="network-list"></div>
+    </section>
+
+    <footer>
+      <span id="native-status" class="native-label">Extension only</span>
+      <button id="connect-native" class="btn-small hidden">Enable enhanced</button>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
